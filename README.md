@@ -6,6 +6,6 @@ Nothing fancy; just a few functions that could prove useful while chatting about
 
 Datas provided by the excellent [Deckbrew.com Magic: The Gathering API](https://deckbrew.com).
 
-Individual functions may be tested by calling them by something like
+Individual functions may be tested by calling them via the command line; something like
 
-    python -c "import mtg; print mtg.oracle("Serra Angel")'
+    python -c 'import mtg; print mtg.oracle("Serra Angel")'
