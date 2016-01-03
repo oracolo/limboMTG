@@ -7,6 +7,7 @@ except ImportError:
 import re
 import requests
 import json
+from bs4 import BeautifulSoup
 
 def jsonretrieve(searchterm):
     searchurl = "http://api.deckbrew.com/mtg/cards?name=" + searchterm
@@ -52,6 +53,13 @@ def card(searchterm):
     else:
         return ""
 
+def magiccardsParse(url):
+	soup = BeautifulSoup(requests.get(url).text, "html5lib")
+	name = soup.find('span', style="font-size: 1.5em;").find('a')
+	image = soup.find('img', height="445")
+
+	return image['src'] + "\n" + oracle(name.text)
+
 def on_message(msg, server):
     text = msg.get("text", "")
     match = re.findall(r"!oracle (.*)", text)
@@ -62,5 +70,10 @@ def on_message(msg, server):
     if match:
         searchterm = match[0]
         return card(searchterm.encode("utf8"))
+    match = re.findall(r".*(http://magiccards.info/.*.html).*", text)
+    if match:
+        searchterm = match[0]
+        return magiccardsParse(searchterm.encode("utf8"))
+        
 
     
