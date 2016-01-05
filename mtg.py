@@ -37,14 +37,14 @@ def oracle(searchterm):
                 answer += u' \U00002014 {subtypes}, '.format(subtypes = ' '.join(card['subtypes']).title())
             else:
                 answer += ', '
-            answer += encodeCost(card['cost']) +'\n'
+            answer += encodeCost(card['cost'], True) +'\n'
             # answer += '*{cost}*\n'.format(cost = card['cost'].encode('utf-8'))
             if 'creature' in card['types']:
                 answer += u'\U0001F5E1{power}/\U0001F6E1{toughness}\n'.format(power = str(card['power']).encode('utf-8'), 
                     toughness = str(card['toughness']).encode('utf-8'))
             if 'planeswalker' in card['types']:
                 answer += u'\U0001F6E1{loyalty}\n'.format(loyalty = str(card['loyalty']).encode('utf-8'))
-            oracleText = card['text']
+            oracleText = encodeCost(card['text'])
             oracleText = oracleText.replace('(', '_(')
             oracleText = oracleText.replace(')', ')_')
             answer += oracleText
@@ -52,19 +52,68 @@ def oracle(searchterm):
     else:
         return ""
 
-def encodeCost(cost):
-    cost = cost.replace('{', '')
-    cost = cost.replace('}', '')
-    cost = cost.replace('W', ':w:')
-    cost = cost.replace('U', ':u:')
-    cost = cost.replace('B', ':n:')
-    cost = cost.replace('G', ':g:')
-    cost = cost.replace('R', ':r:')
+def encodeCost(text, manaCost = False):
+
+    hybrid = {
+        'B/G': ':bg:',
+        'B/R': ':br:',
+        'G/U': ':gu:',
+        'G/W': ':gw:',
+        'R/G': ':rg:',
+        'R/W': ':rw:',
+        'U/B': ':ub:',
+        'U/R': ':ur:',
+        'W/U': ':wu:',
+        '2/B': ':2b:',
+        '2/U': ':2u:',
+        '2/W': ':2w:',
+        '2/G': ':2g:',
+        '2/R': ':2r:',
+        'U/P': ':pu:',
+        'W/P': ':pw:',
+        'R/P': ':pr:',
+        'G/P': ':pg:',
+        'B/P': ':pb:',
+    }
+
+    symbols = {
+        'W': ':w:',
+        'U': ':u:',
+        'B': ':n:',
+        'G': ':g:',
+        'R': ':r:',
+        'X': ':cx:',
+        'Y': ':cy:',
+        'Z': ':cz:',
+        'T': ':t:',
+        'S': ':s:'
+    }
+
+    for letter in hybrid:
+        if manaCost:
+            text = text.replace(letter, hybrid[letter])
+        else:
+            text = text.replace('{' + letter + '}', hybrid[letter])
+
+    for letter in symbols:
+        if manaCost:
+            text = text.replace(letter, symbols[letter])
+        else:
+            text = text.replace('{' + letter + '}', symbols[letter])
+
     for colorless in range(15, 0, -1):
-        if cost != cost.replace(str(colorless), ':{}:'.format(str(colorless))):
-            cost = cost.replace(str(colorless), ':{}:'.format(str(colorless)))
-            break
-    return cost
+        if manaCost:
+            replaced = re.sub('[^:]' + str(colorless) + '[^:]', ':{}:'.format(str(colorless)), text)
+            if text != replaced:
+                text = replaced
+                break
+        else:
+            text = text.replace('{' + str(colorless) + '}', ':{}:'.format(str(colorless)))
+
+    text = text.replace('{', '')
+    text = text.replace('}', '')
+
+    return text
 
 def card(searchterm):
     data = jsonretrieve(searchterm)
