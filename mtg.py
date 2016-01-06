@@ -20,18 +20,19 @@ def oracle(searchterm):
     data = jsonretrieve(searchterm)
 
     if data:
-        results = data[0:limit]
+        results = data
         for card in data:
             if card['name'].lower() == searchterm.lower():
                 results = [card]
-        if len(data) > 1:
+        if len(results) > limit:
             answer = u'_Showing only the first results\U00002026_'
+            results = results[0:limit]
         else:
             answer = ''
         for card in results:
-            if len(data) > 1:
+            if len(results) > 1:
                 answer += '\n\n'
-            answer += '_{name}_, '.format(name = card['name'])
+            answer += '*{name}*, '.format(name = card['name'])
             answer += '{types}'.format(types = ' '.join(card['types']).title())
             if 'subtypes' in card:
                 answer += u' \U00002014 {subtypes}, '.format(subtypes = ' '.join(card['subtypes']).title())
