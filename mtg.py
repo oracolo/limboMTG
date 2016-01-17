@@ -87,7 +87,8 @@ def encodeCost(text, manaCost = False):
         'Y': ':cy:',
         'Z': ':cz:',
         'T': ':t:',
-        'S': ':s:'
+        'S': ':s:',
+        'Q': ':untap:'
     }
 
     for letter in hybrid:
@@ -120,21 +121,20 @@ def card(searchterm):
     data = jsonretrieve(searchterm)
 
     if data:
+        match = data[0]
         for card in data:
             if card['name'].lower() == searchterm.lower():
                 match = card
-            else:
-                match = data[0]
         return match['editions'][0]['image_url']
     else:
         return ""
 
 def magiccardsParse(url):
-	soup = BeautifulSoup(requests.get(url).text, "html5lib")
-	name = soup.find('span', style="font-size: 1.5em;").find('a')
-	image = soup.find('img', height="445")
+    soup = BeautifulSoup(requests.get(url).text, "html5lib")
+    name = soup.find('span', style="font-size: 1.5em;").find('a')
+    image = soup.find('img', height="445")
 
-	return image['src'] + "\n" + oracle(name.text)
+    return image['src'] + "\n" + oracle(name.text)
 
 def on_message(msg, server):
     text = msg.get("text", "")
